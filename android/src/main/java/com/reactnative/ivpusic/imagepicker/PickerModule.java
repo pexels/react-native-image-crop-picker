@@ -608,16 +608,21 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
         BitmapFactory.Options original = validateImage(path);
 
+        ExifInterface originalExif = new ExifInterface(path);
+        int originalOrientation = originalExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+        int rotationAngleInDegrees = new Compression().getRotationInDegreesForOrientationTag(originalOrientation);
+        boolean invertDims = rotationAngleInDegrees == 90 || rotationAngleInDegrees == 270;
+
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
-        File compressedImage = compression.compressImage(this.reactContext, options, path, original);
+        File compressedImage = compression.compressImage(options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
 
         image.putString("path", "file://" + compressedImagePath);
-        image.putInt("width", options.outWidth);
-        image.putInt("height", options.outHeight);
+        image.putInt("width", invertDims ? options.outHeight : options.outWidth);
+        image.putInt("height", invertDims ? options.outWidth : options.outHeight);
         image.putString("mime", options.outMimeType);
         image.putInt("size", (int) new File(compressedImagePath).length());
         image.putString("modificationDate", String.valueOf(modificationDate));
@@ -637,7 +642,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         return image;
     }
-
+    
     private void configureCropperColors(UCrop.Options options) {
         if (cropperActiveWidgetColor != null) {
             options.setActiveControlsWidgetColor(Color.parseColor(cropperActiveWidgetColor));
