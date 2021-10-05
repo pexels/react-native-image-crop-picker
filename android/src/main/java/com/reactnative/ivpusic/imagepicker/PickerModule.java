@@ -600,6 +600,19 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         return options;
     }
 
+    int getRotationInDegreesForOrientationTag(int orientationTag) {
+        switch(orientationTag){
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return 90;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return -90;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return 180;
+            default:
+                return 0;
+        }
+    }
+
     private WritableMap getImage(final Activity activity, String path) throws Exception {
         WritableMap image = new WritableNativeMap();
 
@@ -610,7 +623,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         ExifInterface originalExif = new ExifInterface(path);
         int originalOrientation = originalExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-        int rotationAngleInDegrees = new Compression().getRotationInDegreesForOrientationTag(originalOrientation);
+        int rotationAngleInDegrees = getRotationInDegreesForOrientationTag(originalOrientation);
         boolean invertDims = rotationAngleInDegrees == 90 || rotationAngleInDegrees == 270;
 
         // if compression options are provided image will be compressed. If none options is provided,
