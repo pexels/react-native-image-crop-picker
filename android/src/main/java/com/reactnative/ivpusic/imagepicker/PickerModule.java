@@ -615,7 +615,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         // if compression options are provided image will be compressed. If none options is provided,
         // then original image will be returned
-        File compressedImage = compression.compressImage(options, path, original);
+        File compressedImage = compression.compressImage(this.reactContext, options, path, original);
         String compressedImagePath = compressedImage.getPath();
         BitmapFactory.Options options = validateImage(compressedImagePath);
         long modificationDate = new File(path).lastModified();
@@ -642,7 +642,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
         return image;
     }
-    
+
     private void configureCropperColors(UCrop.Options options) {
         if (cropperActiveWidgetColor != null) {
             options.setActiveControlsWidgetColor(Color.parseColor(cropperActiveWidgetColor));
